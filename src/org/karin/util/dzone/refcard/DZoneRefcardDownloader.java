@@ -58,7 +58,7 @@ public class DZoneRefcardDownloader {
 	
 	private static final String UTF8 = "UTF-8";
 	
-	private boolean useProxy = true;
+	private boolean useProxy = false;
 	
 	private boolean logined = false;
 	
@@ -66,7 +66,7 @@ public class DZoneRefcardDownloader {
 	
 	private List<Refcard> refcards;
 	
-	private List<Refcard> newRefcards = new ArrayList<Refcard>();
+	private List<Refcard> newRefcards = new ArrayList<>();
 	
 	private static class Action implements AutoCloseable {
 		
@@ -91,7 +91,7 @@ public class DZoneRefcardDownloader {
 			String path = string;
 			
 			// check host
-			if (string.indexOf("http://") != -1) {
+			if (string.contains("http://")) {
 				// first use url to split the string url
 				URL url = new URL(string);
 				host = url.getHost();
@@ -192,7 +192,7 @@ public class DZoneRefcardDownloader {
 		
 		private byte[] getContent() throws IOException {
 			byte[] buf = new byte[1024 * 4];
-			int len = 0;
+			int len;
 			
 			ByteArrayOutputStream res = null;
 			try (InputStream ins = con.getInputStream()) {
@@ -330,15 +330,15 @@ public class DZoneRefcardDownloader {
 	private void main() throws IOException, ClassNotFoundException {
 		File mapfile = new File(CACHE_FILE);
 		try {
-			refcards = new ArrayList<Refcard>();
-			refcardMap = new HashMap<Integer, Refcard>();
-			
+			refcards = new ArrayList<>();
+			refcardMap = new HashMap<>();
+
 			if (mapfile.exists()) {
 				log(String.format("Loading refcards information from file [%s]", CACHE_FILE));
 				try (BufferedReader reader = new BufferedReader(
 						new FileReader(mapfile))) { 
-					String line = null;
-					Refcard refcard = null;
+					String line;
+					Refcard refcard;
 					while ((line = reader.readLine()) != null) {
 						refcard = Refcard.fromCsvLine(line);
 						refcards.add(refcard);
@@ -400,7 +400,7 @@ public class DZoneRefcardDownloader {
 		log("Checking if there are new refcards...");
 		
 		try (BufferedReader br = new BufferedReader(new StringReader(html))) {
-			String line = null;
+			String line;
 			while ((line = br.readLine()) != null) {
 				int start = line.indexOf("<script type='text/javascript'>refcardzNodes = new Array()");
 				if (start != -1) {
@@ -409,7 +409,7 @@ public class DZoneRefcardDownloader {
 					Matcher nm = NUMBER_REGEX.matcher(line);
 					Matcher tm = TITLE_REGEX.matcher(line);
 					Matcher im = ID_REGEX.matcher(line);
-					Refcard refcard = null;
+					Refcard refcard;
 					while (nm.find()) {
 						//log("find number = " + nm.group(1));
 						if (tm.find()) {
@@ -429,8 +429,6 @@ public class DZoneRefcardDownloader {
 									
 									refcard = null;
 								}
-								
-								start = tm.end();
 							}
 						}
 					}
@@ -443,7 +441,7 @@ public class DZoneRefcardDownloader {
 		
 		log(String.format("Checking refcards existence..."));
 		
-		List<Refcard> refcardsNeedDownload = new ArrayList<Refcard>();
+		List<Refcard> refcardsNeedDownload = new ArrayList<>();
 		
 		for (Refcard refcard : refcards) {
 			String fn = refcard.filename;
@@ -562,16 +560,16 @@ public class DZoneRefcardDownloader {
 									}
 								}
 							}
-							log(String.format("[%s] doen", fn));
+							log(String.format("[%s] done", fn));
 						}
 						
 					}
 				}
 
-				log(String.format("Download doen [%d] [%s].", refcard.number, refcard.title));
+				log(String.format("Download done [%d] [%s].", refcard.number, refcard.title));
 			}
 			
-			log("Download doen.");
+			log("Download done.");
 			
 		}
 	}
@@ -579,9 +577,7 @@ public class DZoneRefcardDownloader {
 	public static void main(String[] args) {
 		try {
 			new DZoneRefcardDownloader().main();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
