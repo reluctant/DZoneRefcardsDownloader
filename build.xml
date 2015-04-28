@@ -1,0 +1,11 @@
+<project name="DZoneRefcardsDownloader" default="run">
+    <target name="init">
+        <mkdir dir="bin"/>
+    </target>
+    <target name="compile" depends="init">
+        <javac includeAntRuntime="false" srcdir="src" destdir="bin"/>
+    </target>
+    <target name="run" depends="compile">
+        <java classpath="bin" classname="org.karin.util.dzone.refcard.DZoneRefcardDownloader"/>
+    </target>
+</project>
