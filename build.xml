@@ -9,5 +9,6 @@
         <java classpath="bin" classname="org.karin.util.dzone.refcard.DZoneRefcardDownloader"/>
     </target>
     <!--
+    This is the comment inside POM
     -->
 </project>
